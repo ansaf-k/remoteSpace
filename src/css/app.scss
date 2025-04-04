@@ -1,0 +1,50 @@
+// app global css in SCSS form
+:root {
+    --primary: #1E3A8A;
+    --secondary: #F59E0B;
+    --background: #F8FAFC;
+    --dark-accent: #111827;
+    --success: #10B981;
+    --error: #EF4444;
+  }
+  
+  /* Adding color classes for Quasar */
+  .bg-primary {
+    background-color: #1E3A8A !important;
+  }
+  
+  .text-primary {
+    color: #1E3A8A !important;
+  }
+  
+  .bg-secondary {
+    background-color: #F59E0B !important;
+  }
+  
+  .text-secondary {
+    color: #F59E0B !important;
+  }
+  
+  .bg-soft-white {
+    background-color: #F8FAFC !important;
+  }
+  
+  .bg-dark-accent {
+    background-color: #111827 !important;
+  }
+  
+  .text-success, .text-green {
+    color: #10B981 !important;
+  }
+  
+  .bg-green-1 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  
+  .text-error, .text-red {
+    color: #EF4444 !important;
+  }
+  
+  .bg-red-1 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
