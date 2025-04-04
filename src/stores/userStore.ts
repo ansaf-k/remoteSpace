@@ -14,7 +14,7 @@ export interface User {
     position?: string;
     avatar?: string;
     active_status?: string;
-    last_access: Date | null;
+    last_access: Date;
 }
 
 export interface Badge {
@@ -25,7 +25,6 @@ export interface Badge {
     awarded_at: Date;
     message: object | null;
 }
-
 
 
 export const useUserStore = defineStore('user', () => {

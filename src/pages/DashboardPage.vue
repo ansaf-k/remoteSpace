@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, reactive } from 'vue';
+import { ref, onMounted,reactive, computed } from 'vue';
 import { useAuthStore } from 'src/stores/authStore';
 import { useCheckInStore } from 'src/stores/checkInStore';
 import { useQuasar } from 'quasar';
-import { useUserStore } from 'src/stores/userStore';
+import { type User, useUserStore } from 'src/stores/userStore';
+import { useDateTime } from 'src/composables/useDateTime'
+
 
 const authStore = useAuthStore();
 const checkInStore = useCheckInStore();
 const userStore = useUserStore();
+const { formatDate, updateCurrentTime } = useDateTime();
 
 const $q = useQuasar();
 const loadingData = ref(true);
@@ -15,20 +18,11 @@ const currentDateTime = ref(new Date());
 const showModal = ref(false);
 const timeInterval = ref<number | null>(null);
 
-// User state
-const user = reactive({
-    first_name: '',
-    position: '',
-    avatar: 'https://cdn.quasar.dev/img/avatar.png',
-    status: '',
-    checkedInTime: '',
-    checkedOutTime: '',
-});
 
 // Active teams data
 const activeTeams = reactive([
     {
-        id: 1,
+        id: '',
         name: 'Frontend Development Team',
         members: 8,
         progress: 75,
@@ -75,43 +69,42 @@ const handleCheckOut = async (): Promise<void> => {
     }
 };
 
+const formattedDate = (isoString: Date, includeTime: boolean) => {
+    return formatDate(isoString, includeTime);
+}
 
-/** Updates the current date and time */
-const updateCurrentTime = (): void => {
-    currentDateTime.value = new Date();
-};
 
 /** Formats time as hh:mm AM/PM */
 const formatTime = (date: Date): string => {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 };
 
-/** Formats date as Day of Week, Month Day */
-const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-};
 
 /** Fetches the authenticated user data */
-const fetchUserData = () => {
-    const currentUser = authStore.user as {
-        id: string;
-        email: string;
-        first_name?: string;
-        last_name?: string;
-        avatar?: string;
-    } | null;
+const user = computed(() => {
+    const currentUser = authStore.user as User
 
     if (currentUser) {
-        Object.assign(user, {
-            first_name: currentUser.first_name || '',
-            position: '',
+       return {
+            first_name: currentUser.first_name,
+            position: currentUser.position,
             avatar: currentUser.avatar || 'https://cdn.quasar.dev/img/avatar.png',
             status: checkInStore.IsCheckedIn ? 'CheckedIn' : 'CheckedOut',
-            checkedInTime: checkInStore.checkInTime || '',
-            checkedOutTime: checkInStore.checkOutTime || '',
-        });
+            checkedInTime: checkInStore.checkInTime,
+            checkedOutTime: checkInStore.checkOutTime,
+        };
     }
-};
+    else {
+        return {
+            first_name: '',
+            position: '',
+            avatar: 'https://cdn.quasar.dev/img/avatar.png',
+            status: '',
+            checkedInTime: '',
+            checkedOutTime: '',
+        }
+    }
+});
 
 
 onMounted(async () => {
@@ -126,25 +119,9 @@ onMounted(async () => {
 
 
     // Fetch authenticated user data
-    fetchUserData();
     await userStore.fetchActiveUsers()
 });
 
-// Cleanup on unmount
-onBeforeUnmount(() => {
-    if (timeInterval.value !== null) {
-        clearInterval(timeInterval.value);
-    }
-});
-
-
-watch(
-    () => [checkInStore.IsCheckedIn, checkInStore.checkInTime, checkInStore.checkOutTime],
-    () => {
-        fetchUserData();
-    },
-    { deep: true, immediate: true }
-);
 
 
 </script>
@@ -157,8 +134,7 @@ watch(
         <div class="row items-center q-mb-md">
             <div class="col-12 col-md-6">
                 <h4 class="q-mt-none q-mb-xs">Welcome back, {{ user.first_name }}!</h4>
-                <p class="text-grey-7 q-mb-none">{{ formatDate(currentDateTime) }} · {{
-                    formatTime(currentDateTime) }}
+                <p class="text-grey-7 q-mb-none">{{ formattedDate(currentDateTime, true) }}
                 </p>
             </div>
             <div class="col-12 col-md-6 text-right">
@@ -276,8 +252,7 @@ watch(
                                     <q-item-label>{{ user.first_name }}{{ user.last_name }}</q-item-label>
                                     <q-item-label caption>
                                         <span class="text-capitalize">{{ user.active_status?.replace('-', ' ')
-                                            }}</span> · {{
-                                                user.last_access }}
+                                            }}</span> · {{ formattedDate(user.last_access, true) }}
                                     </q-item-label>
                                 </q-item-section>
 
@@ -313,7 +288,7 @@ watch(
 
                 <div class="time-display text-center q-mb-lg">
                     <div class="text-h4 text-primary">{{ formatTime(currentDateTime) }}</div>
-                    <div class="text-caption text-grey">{{ formatDate(currentDateTime) }}</div>
+                    <div class="text-caption text-grey">{{ formattedDate(currentDateTime, false) }}</div>
                 </div>
 
                 <div class="q-mb-lg">
