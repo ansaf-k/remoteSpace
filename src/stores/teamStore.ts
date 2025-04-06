@@ -1,26 +1,81 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import {type User } from './userStore';
 import { directus, readItems } from 'src/services/directus';
-import { useRoute } from 'vue-router';
+// import { useRoute } from 'vue-router';
+
+
+export interface Teams {
+    id: string;
+    teams: string;
+    description: string;
+    people: [];
+    team_length: number;
+    leader?: string;
+    date_created: Date;
+}
+
+type DirectusUserFields = {
+    id?: string;
+    first_name?: string;
+    avatar?: { id?: boolean, filename_download: string };
+    role?: { name: string };
+};
+
+
+
+interface DirectusQuery {
+    id:string;
+    directus_users_id: DirectusUserFields;
+    status:string;
+    teams_id: string;
+}
+
+
 
 export const useTeamStore = defineStore('team', () => {
-    const user = ref<User[] | null>(null);
-    const route = useRoute();
+    const teamMembers = ref<DirectusQuery[]>();
+    // const route = useRoute();
+    const activeTeams = ref<Teams[]>();
+    // const teams_id = ref()
+
+
 
     async function fetchTeamMembers() {
-        const userId = route.params.id;
+        // const userId = route.params.id;
         try {
-            const response = await directus.request(readItems('teams',{
-                filter:{user_id :{_eq:userId}}
+            const data = await directus.request(readItems('teams_directus_users', {
+                filter: { directus_users_id: { _eq: '5c00b4a1-6107-433a-84b4-b6f96bddfe7e' } },
+                fields: [
+                    'id',
+                    'status',
+                    'teams_id',
+                    { directus_users_id: ['id', 'first_name', 'last_name', { avatar: ['id', 'filename_download'] }, { role: ['name'] }] }
+                ],
+                limit: 10
             }));
-            user.value = response as User[];
+            console.log(data);
+            teamMembers.value = data as DirectusQuery[];
         } catch (err) {
             console.log(err)
         }
-    }
+    };
+
+    async function fetchActiveTeams() {
+        try {
+            const response = await directus.request(readItems('teams', {
+                limit: 5,
+                filter: { status: { _eq: 'active' } },
+            }));
+            activeTeams.value = response as Teams[];
+        } catch (err) {
+            console.error('Error fetching active teams:', err);
+        }
+    };
 
     return {
-        fetchTeamMembers
+        teamMembers,
+        activeTeams,
+        fetchTeamMembers,
+        fetchActiveTeams
     }
 })

@@ -17,6 +17,7 @@
   "dependencies": {
     "@directus/sdk": "^19.0.1",
     "@quasar/extras": "^1.16.4",
+    "dotenv": "^16.4.7",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "quasar": "^2.16.0",

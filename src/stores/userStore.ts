@@ -1,7 +1,7 @@
 // src/stores/userStore.js
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { directus, readUser, readUsers, customEndpoint, readItems } from '../services/directus';
+import { directus, readUser, readUsers, customEndpoint } from '../services/directus';
 import { useRoute } from 'vue-router';
 import { type OutputFileType } from 'typescript';
 
@@ -78,16 +78,6 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
-    // fetch team members
-    async function fetchTeamMembers(){
-        try {
-            const response = await directus.request(readItems('team_members'));
-            teamMembers.value = response;
-        } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to fetch team Members';
-            console.error('Error fetching team Members:', err);
-        }
-    }
 
     return {
         user,
@@ -98,6 +88,5 @@ export const useUserStore = defineStore('user', () => {
         fetchUserById,
         fetchActiveUsers,
         fetchUserBadges,
-        fetchTeamMembers
     };
 });

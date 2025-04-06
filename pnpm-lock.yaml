@@ -14,6 +14,9 @@ importers:
       '@quasar/extras':
         specifier: ^1.16.4
         version: 1.16.17
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       pinia:
         specifier: ^3.0.1
         version: 3.0.1(typescript@5.5.4)(vue@3.5.13(typescript@5.5.4))

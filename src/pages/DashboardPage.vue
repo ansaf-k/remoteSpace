@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted,reactive, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from 'src/stores/authStore';
 import { useCheckInStore } from 'src/stores/checkInStore';
 import { useQuasar } from 'quasar';
 import { type User, useUserStore } from 'src/stores/userStore';
 import { useDateTime } from 'src/composables/useDateTime'
+import { useTeamStore } from 'src/stores/teamStore';
 
 
 const authStore = useAuthStore();
 const checkInStore = useCheckInStore();
 const userStore = useUserStore();
-const { formatDate, updateCurrentTime } = useDateTime();
+const teamStore = useTeamStore();
+const { formatDate, updateCurrentTime, formatTime } = useDateTime();
 
 const $q = useQuasar();
 const loadingData = ref(true);
@@ -19,24 +21,8 @@ const showModal = ref(false);
 const timeInterval = ref<number | null>(null);
 
 
-// Active teams data
-const activeTeams = reactive([
-    {
-        id: '',
-        name: 'Frontend Development Team',
-        members: 8,
-        progress: 75,
-        leader: 'John Doe',
-        color: 'primary',
-        ongoingProjects: 3,
-        completedProjects: 12
-    },
-]);
-
-
 // check-in
 const handleCheckIn = async (): Promise<void> => {
-    console.log("in");
     try {
         if (authStore.user && authStore.user.id) {
             await checkInStore.checkIn(authStore.user.id, 'check-in');
@@ -50,10 +36,8 @@ const handleCheckIn = async (): Promise<void> => {
     }
 };
 
-
 // check-out
 const handleCheckOut = async (): Promise<void> => {
-    console.log("out");
     try {
         if (authStore.user && authStore.user.id) {
             await checkInStore.checkOut(authStore.user.id, 'check-out').then(() => {
@@ -75,8 +59,8 @@ const formattedDate = (isoString: Date, includeTime: boolean) => {
 
 
 /** Formats time as hh:mm AM/PM */
-const formatTime = (date: Date): string => {
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+const formattedTime = (isoString: Date): string => {
+    return formatTime(isoString);
 };
 
 
@@ -85,11 +69,11 @@ const user = computed(() => {
     const currentUser = authStore.user as User
 
     if (currentUser) {
-       return {
+        return {
             first_name: currentUser.first_name,
             position: currentUser.position,
             avatar: currentUser.avatar || 'https://cdn.quasar.dev/img/avatar.png',
-            status: checkInStore.IsCheckedIn ? 'CheckedIn' : 'CheckedOut',
+            status: currentUser.active_status,
             checkedInTime: checkInStore.checkInTime,
             checkedOutTime: checkInStore.checkOutTime,
         };
@@ -119,7 +103,8 @@ onMounted(async () => {
 
 
     // Fetch authenticated user data
-    await userStore.fetchActiveUsers()
+    await userStore.fetchActiveUsers();
+    await teamStore.fetchActiveTeams();
 });
 
 
@@ -134,7 +119,8 @@ onMounted(async () => {
         <div class="row items-center q-mb-md">
             <div class="col-12 col-md-6">
                 <h4 class="q-mt-none q-mb-xs">Welcome back, {{ user.first_name }}!</h4>
-                <p class="text-grey-7 q-mb-none">{{ formattedDate(currentDateTime, true) }}
+                <p class="text-grey-7 q-mb-none">{{ formattedDate(currentDateTime, false) }} · {{
+                    formattedTime(currentDateTime) }}
                 </p>
             </div>
             <div class="col-12 col-md-6 text-right">
@@ -147,39 +133,40 @@ onMounted(async () => {
             <!-- Main Column -->
             <div class="col-12 col-lg-8">
 
-                <!-- Active Projects -->
+                <!-- Active Teams -->
                 <q-card class="q-mb-md">
                     <q-card-section class="q-pb-none">
                         <div class="row items-center justify-between">
                             <div class="text-h6">Active Teams</div>
-                            <q-btn flat color="primary" label="View All Projects" />
+                            <q-btn flat color="primary" label="View All Teams" />
                         </div>
                     </q-card-section>
 
                     <q-card-section>
                         <q-list separator>
-                            <q-item v-for="team in activeTeams" :key="team.id" clickable class="team-item">
+                            <q-item v-for="team in teamStore.activeTeams" :key="team.id" clickable class="team-item">
                                 <q-item-section>
                                     <div class="row items-center q-col-gutter-md">
                                         <div class="col-12 col-sm-6">
-                                            <q-item-label class="text-weight-medium">{{ team.name }}</q-item-label>
+                                            <q-item-label class="text-weight-medium">{{ team.teams }}</q-item-label>
                                             <q-item-label caption>
-                                                <q-badge :color="team.color" text-color="white" class="q-mr-xs">
+                                                <q-badge v-if="team.leader" color="primary" text-color="white" class="q-mr-xs">
                                                     Leader: {{ team.leader }}
                                                 </q-badge>
-                                                <span>{{ team.members }} Members</span>
+                                                <span v-if="team.description?.length < 45">{{ team.description }}</span>
+                                                <span v-else>{{ team.description.substring(0, 45) + '...' }}</span>
                                             </q-item-label>
                                         </div>
 
                                         <div class="col-12 col-sm-6">
                                             <div class="row">
                                                 <div class="col">
-                                                    <q-item-label caption>Ongoing Projects</q-item-label>
-                                                    <q-item-label>{{ team.ongoingProjects }}</q-item-label>
+                                                    <q-item-label caption>Team Members</q-item-label>
+                                                    <q-item-label>{{ team.people.length }}</q-item-label>
                                                 </div>
                                                 <div class="col text-right">
-                                                    <q-item-label caption>Completed Projects</q-item-label>
-                                                    <q-item-label>{{ team.completedProjects }}</q-item-label>
+                                                    <q-item-label caption>Created At</q-item-label>
+                                                    <q-item-label>{{ formattedDate(team.date_created, false) }}</q-item-label>
                                                 </div>
                                             </div>
                                         </div>
@@ -208,7 +195,7 @@ onMounted(async () => {
                             <div class="col-auto">
                                 <q-avatar size="48px">
                                     <img :src="user.avatar" />
-                                    <q-badge floating rounded color="green" v-if="user.status === 'CheckedIn'" />
+                                    <q-badge floating rounded color="green" v-if="user.status === 'online'" />
                                 </q-avatar>
                             </div>
                             <div class="col q-ml-md">
@@ -216,13 +203,14 @@ onMounted(async () => {
                                 <div class="text-caption text-grey-7">{{ user.position }}
                                 </div>
                                 <div class="text-caption q-mt-xs">
-                                    <q-badge color="green" v-if="user.status === 'CheckedIn'">
+                                    <q-badge color="green" v-if="user.status === 'online'">
                                         Checked in at {{ user.checkedInTime }}
                                     </q-badge>
-                                    <q-badge color="red" v-else-if="user.status === 'CheckedOut'">
+                                    <q-badge color="red" v-else-if="user.status === 'offline'">
                                         Checked out at {{ user.checkedOutTime }}
                                     </q-badge>
                                     <q-badge color="orange" v-else>
+                                        You need to check in first!
                                     </q-badge>
                                 </div>
                             </div>
@@ -252,7 +240,7 @@ onMounted(async () => {
                                     <q-item-label>{{ user.first_name }}{{ user.last_name }}</q-item-label>
                                     <q-item-label caption>
                                         <span class="text-capitalize">{{ user.active_status?.replace('-', ' ')
-                                            }}</span> · {{ formattedDate(user.last_access, true) }}
+                                        }}</span> · {{ formattedDate(user.last_access, true) }}
                                     </q-item-label>
                                 </q-item-section>
 
@@ -263,7 +251,6 @@ onMounted(async () => {
                         </q-list>
                     </q-card-section>
                 </q-card>
-
             </div>
         </div>
     </q-page>
@@ -287,7 +274,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="time-display text-center q-mb-lg">
-                    <div class="text-h4 text-primary">{{ formatTime(currentDateTime) }}</div>
+                    <div class="text-h4 text-primary">{{ formattedTime(currentDateTime) }}</div>
                     <div class="text-caption text-grey">{{ formattedDate(currentDateTime, false) }}</div>
                 </div>
 

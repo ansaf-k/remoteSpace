@@ -32,8 +32,7 @@ class LocalStorage {
     }
 }
 
-
-const directus = createDirectus('https://remote-production-6ad2.up.railway.app')
+const directus = createDirectus(import.meta.env.VITE_DIRECTUS_URL)
     .with(rest())
     .with(authentication('json', {
         storage: new LocalStorage(),
