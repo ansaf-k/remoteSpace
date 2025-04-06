@@ -33,7 +33,7 @@ export default defineConfig((/* ctx */) => {
       },
 
       publicPath: '/', 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
