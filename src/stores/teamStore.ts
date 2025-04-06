@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { directus, readItems } from 'src/services/directus';
-// import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 
 export interface Teams {
@@ -34,17 +34,16 @@ interface DirectusQuery {
 
 export const useTeamStore = defineStore('team', () => {
     const teamMembers = ref<DirectusQuery[]>();
-    // const route = useRoute();
+    const route = useRoute();
     const activeTeams = ref<Teams[]>();
-    // const teams_id = ref()
 
 
 
     async function fetchTeamMembers() {
-        // const userId = route.params.id;
+        const userId = route.params.id;
         try {
             const data = await directus.request(readItems('teams_directus_users', {
-                filter: { directus_users_id: { _eq: '5c00b4a1-6107-433a-84b4-b6f96bddfe7e' } },
+                filter: { directus_users_id: { _eq: userId } },
                 fields: [
                     'id',
                     'status',
