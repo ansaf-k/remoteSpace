@@ -8,7 +8,8 @@ export default defineConfig((/* ctx */) => {
 
     boot: [
       'pinia',
-      'directus'
+      'directus',
+      'viewport'
     ],
 
     css: [
@@ -32,7 +33,7 @@ export default defineConfig((/* ctx */) => {
         // extendTsConfig (tsConfig) {}
       },
 
-      publicPath: '/', 
+      publicPath: '/',
       vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
@@ -213,7 +214,7 @@ export default defineConfig((/* ctx */) => {
        * @example [ 'my-script.ts', 'sub-folder/my-other-script.js' ]
        */
       extraScripts: []
-      
+
     }
   }
 });
