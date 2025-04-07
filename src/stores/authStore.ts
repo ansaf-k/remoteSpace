@@ -10,7 +10,6 @@ interface User {
   role?: string;
   avatar?: string;
   status?: string;
-  position?:string;
 }
 
 export const useAuthStore = defineStore('auth', () => {
