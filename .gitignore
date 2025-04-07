@@ -1,7 +1,7 @@
 .DS_Store
 .thumbs.db
 node_modules
-dist/
+dist/spa
 .env
 
 # Quasar core related directories
@@ -33,3 +33,6 @@ yarn-error.log*
 
 # local .env files
 .env.local*
+
+# Local Netlify folder
+.netlify
