@@ -4,12 +4,17 @@ import { ref } from 'vue';
 
 interface User {
   id: string;
-  email: string;
   first_name?: string;
   last_name?: string;
-  role?: string;
+  password?: string;
+  location?: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
   avatar?: string;
   status?: string;
+  role?: string;
+  email?: string;
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -53,7 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (!isAuthenticated.value) return null;
       const me = await directus.request(readMe());
 
-      if (me && typeof me === 'object' && 'email' in me) {
+      if (me && 'email' in me) {
         // Set user properties with proper typing
         user.value = me as User;
         console.log(user.value);
