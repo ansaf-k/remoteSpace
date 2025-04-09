@@ -13,7 +13,8 @@ import {
     type AuthenticationData,
     readUser,
     readUsers,
-    customEndpoint
+    customEndpoint,
+    readItem
 } from '@directus/sdk';
 
 
@@ -43,5 +44,5 @@ const directus = createDirectus(import.meta.env.VITE_DIRECTUS_URL)
 export {
     createItemOperation as createItem, deleteItemOperation as deleteItem, directus,
     readItems, readMe, updateItemOperation as updateItem, readCollections, passwordRequest,
-    passwordReset, readUser, readUsers, customEndpoint
+    passwordReset, readUser, readUsers, customEndpoint,readItem
 };

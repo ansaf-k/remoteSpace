@@ -4,17 +4,12 @@ import { ref } from 'vue';
 
 interface User {
   id: string;
+  email: string;
   first_name?: string;
   last_name?: string;
-  password?: string;
-  location?: string;
-  title?: string;
-  description?: string;
-  tags?: string[];
-  avatar?: string;
-  status?: string;
   role?: string;
-  email?: string;
+  avatar?: string;
+  active_status: string;
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -128,5 +123,6 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     init,
     sendResetRequest,
+    fetchCurrentUser,
   };
 });

@@ -16,7 +16,6 @@ export function useDateTime() {
     }
 
     return date.toLocaleDateString('en-US', options);
-
   };
 
   const formatTime = (isoString: Date) => {
@@ -24,23 +23,32 @@ export function useDateTime() {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   }
 
-  const updateCurrentTime = () => {
-    const timeInterval = ref<number | null>(null);
-    const currentDateTime = ref(new Date());
-    currentDateTime.value = new Date();
-    onMounted(() => {
-      updateCurrentTime();
-      timeInterval.value = window.setInterval(updateCurrentTime, 60000);
-    });
+  // Moved the time interval logic outside
+  const timeInterval = ref<number | null>(null);
+  const currentDateTime = ref(new Date());
 
-    onBeforeUnmount(() => {
-      if (timeInterval.value !== null) {
-        clearInterval(timeInterval.value);
-      }
-    });
+  // Initialize the timer when the composable is used in a component
+  const initCurrentTime = () => {
+    const updateCurrentTime = () => {
+      currentDateTime.value = new Date();
+    };
+
+    updateCurrentTime();
+    timeInterval.value = window.setInterval(updateCurrentTime, 60000);
 
     return currentDateTime;
   };
+
+  // These lifecycle hooks will work when the composable is used in a component's setup()
+  onMounted(() => {
+    initCurrentTime();
+  });
+
+  onBeforeUnmount(() => {
+    if (timeInterval.value !== null) {
+      clearInterval(timeInterval.value);
+    }
+  });
 
   const formatSmartDate = (isoString: Date) => {
     if (!isoString) return "N/A";
@@ -52,19 +60,14 @@ export function useDateTime() {
     const diffInMinutes = Math.floor(diffInMilliseconds / (1000 * 60));
 
     if (diffInDays <= 0) {
-      if(diffInHours<=0){
-        return new Intl.RelativeTimeFormat('en',{style:'short'}).format(-diffInMinutes,'minute');
+      if (diffInHours <= 0) {
+        return new Intl.RelativeTimeFormat('en', { style: 'short' }).format(-diffInMinutes, 'minute');
+      } else {
+        return new Intl.RelativeTimeFormat('en', { style: 'short' }).format(-diffInHours, 'hour');
       }
-      else {
-        return new Intl.RelativeTimeFormat('en',{style:'short'}).format(-diffInHours,'hour')
-      }
-    }
-    // Show relative time if ≤ 30 days ago
-    else if (diffInDays <= 30) {
+    } else if (diffInDays <= 30) {
       return new Intl.RelativeTimeFormat('en', { style: 'short' }).format(-diffInDays, 'day');
-    }
-    // Otherwise, show a formatted date
-    else {
+    } else {
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -73,7 +76,10 @@ export function useDateTime() {
     }
   }
 
-  // }
-
-  return { formatDate, updateCurrentTime, formatTime, formatSmartDate };
+  return {
+    formatDate,
+    currentDateTime: initCurrentTime(), // Initialize and return the reactive datetime
+    formatTime,
+    formatSmartDate
+  };
 }

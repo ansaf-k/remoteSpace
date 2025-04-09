@@ -24,9 +24,9 @@ type DirectusUserFields = {
 
 
 interface DirectusQuery {
-    id:string;
+    id: string;
     directus_users_id: DirectusUserFields;
-    status:string;
+    status: string;
     teams_id: string;
 }
 
@@ -36,7 +36,15 @@ export const useTeamStore = defineStore('team', () => {
     const teamMembers = ref<DirectusQuery[]>();
     const route = useRoute();
     const activeTeams = ref<Teams[]>();
+    const team = ref<Teams[]>();
 
+
+    async function fetchTeam() {
+        const data = await directus.request(readItems('teams', {
+            limit: 10
+        }));
+        team.value = data as Teams[];
+    }
 
 
     async function fetchTeamMembers() {
@@ -74,7 +82,9 @@ export const useTeamStore = defineStore('team', () => {
     return {
         teamMembers,
         activeTeams,
+        team,
         fetchTeamMembers,
+        fetchTeam,
         fetchActiveTeams
     }
 })
