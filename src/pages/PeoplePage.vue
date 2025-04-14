@@ -8,6 +8,7 @@ import { ref, onMounted, watch } from 'vue';
 
 const userStore = useUserStore();
 const { formatSmartDate } = useDateTime();
+const totalUSerCount = ref<number>();
 
 // Table columns definition
 const columns = [
@@ -79,6 +80,8 @@ const clearFilters = () => {
 
 // Lifecycle hooks
 onMounted(async () => {
+    totalUSerCount.value = await userStore.getTotalUserCount();
+
     await userStore.fetchUsers({
         search: filters.value.search,
         status: filters.value.status,
@@ -194,7 +197,8 @@ watch(
             </p>
             <q-btn color="primary" label="Clear Filters" @click="clearFilters" />
         </q-card>
-        <AppPagination v-model:page="filters.page" :limit="filters.limit" />
+        <AppPagination v-if="(totalUSerCount ?? 0) > filters.limit" v-model:page="filters.page" :limit="filters.limit"
+            :count="totalUSerCount ?? 0" />
     </q-page>
 </template>
 

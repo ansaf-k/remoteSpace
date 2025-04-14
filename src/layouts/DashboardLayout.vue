@@ -61,23 +61,21 @@ const goToCheckIn = async () => {
     await router.push('/checkin');
 };
 
-const avatarUrl = computed(() => authStore.user?.avatar || '');
+const avatarUrl = computed(() => authStore.user?.avatar || 'src/assets/profile.jpg');
+
 </script>
 
 <template>
     <q-layout view="lHh Lpr lFf">
         <q-header elevated class="bg-primary">
             <q-toolbar>
-                <q-toolbar-title>
-                    Remo<span class="text-secondary">Space</span>
-                </q-toolbar-title>
+                <router-link to="/dashboard" style="text-decoration: none; color: inherit;">
+                    <q-toolbar-title>
+                        Remo<span class="text-secondary">Space</span>
+                    </q-toolbar-title>
+                </router-link>
 
                 <q-space />
-
-                <q-btn flat round icon="notifications" class="q-mr-sm">
-                    <q-badge color="red" floating>3</q-badge>
-                </q-btn>
-
 
                 <q-btn-dropdown flat>
                     <template v-slot:label>
@@ -109,13 +107,13 @@ const avatarUrl = computed(() => authStore.user?.avatar || '');
                 </q-btn-dropdown>
             </q-toolbar>
 
-           <div v-if="!route.meta.hideSomeElements">
+            <div v-if="!route.meta.hideSomeElements">
                 <q-tabs align="left" class="bg-primary text-white">
                     <q-route-tab to="/dashboard" label="Dashboard" icon="dashboard" />
                     <q-route-tab to="/dashboard/team" label="Team" icon="groups" />
                     <q-route-tab to="/dashboard/peoples" label="People" icon="people" />
                 </q-tabs>
-           </div>
+            </div>
         </q-header>
 
         <q-page-container>

@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { useUserStore } from 'src/stores/userStore';
 import { onMounted, ref, watch } from 'vue';
 
 
-const totalUSerCount = ref<number>();
-const userStore = useUserStore();
 const totalPages = ref<number>();
 
 const props = defineProps({
@@ -13,6 +10,10 @@ const props = defineProps({
         required: true
     },
     limit: {
+        type: Number,
+        required: true
+    },
+    count: {
         type: Number,
         required: true
     }
@@ -29,9 +30,8 @@ const updatePage = (val: number) => {
     emit('update:page', val)
 }
 
-onMounted(async () => {
-    totalUSerCount.value = await userStore.getTotalUserCount();
-    totalPages.value = Math.ceil(totalUSerCount.value / props.limit);
+onMounted(() => {
+    totalPages.value = Math.ceil(props.count / props.limit);
 });
 
 
@@ -40,6 +40,7 @@ onMounted(async () => {
 
 <template>
     <div class="q-pa-lg flex flex-center">
-        <q-pagination v-model="currentPage" :max="totalPages ?? 0" :max-pages="3" :boundary-numbers="false" direction-links @update:model-value="updatePage" />
+        <q-pagination v-model="currentPage" :max="totalPages ?? 0" :max-pages="3" :boundary-numbers="false"
+            direction-links @update:model-value="updatePage" />
     </div>
 </template>
