@@ -1,14 +1,10 @@
 <script setup lang="ts">
+import AppPagination from 'src/components/AppPagination.vue';
 import { useDateTime } from 'src/composables/useDateTime';
-import { type User, useUserStore } from 'src/stores/userStore';
+import { type UserFilters, useUserStore } from 'src/stores/userStore';
 import { ref, onMounted, watch } from 'vue';
 
 
-interface Filters {
-    search: string;
-    status: User['active_status'] | null;
-    limit: number;
-}
 
 const userStore = useUserStore();
 const { formatSmartDate } = useDateTime();
@@ -24,10 +20,11 @@ const columns = [
 
 
 // Filter state
-const filters = ref<Filters>({
+const filters = ref<UserFilters>({
     search: '',
     status: null,
-    limit: 15
+    limit: 10,
+    page: 1
 });
 
 // Filter options
@@ -75,13 +72,19 @@ const clearFilters = () => {
     filters.value = {
         search: '',
         status: null,
-        limit: 15
+        limit: filters.value.limit,
+        page: filters.value.page
     };
 };
 
 // Lifecycle hooks
 onMounted(async () => {
-    await userStore.fetchUsers({ search: filters.value.search, status: filters.value.status, limit: 15 });
+    await userStore.fetchUsers({
+        search: filters.value.search,
+        status: filters.value.status,
+        limit: filters.value.limit,
+        page: filters.value.page
+    });
 });
 
 watch(
@@ -137,7 +140,8 @@ watch(
 
         <!-- List View -->
         <q-card v-if="userStore.users?.length && userStore.users?.length > 0">
-            <q-table :rows="userStore.users" :columns="columns" row-key="name" flat :pagination="{ rowsPerPage: 10 }">
+            <q-table :rows="userStore.users" :columns="columns" row-key="name" flat
+                :pagination="{ rowsPerPage: filters.limit }">
                 <template v-slot:body="props">
                     <q-tr :props="props">
                         <q-td key="avatar" :props="props">
@@ -180,6 +184,7 @@ watch(
             </q-table>
         </q-card>
 
+
         <!-- Empty State -->
         <q-card v-if="userStore.users?.length === 0" class="text-center q-pa-lg">
             <q-icon name="search_off" size="4rem" color="grey-5" />
@@ -189,6 +194,7 @@ watch(
             </p>
             <q-btn color="primary" label="Clear Filters" @click="clearFilters" />
         </q-card>
+        <AppPagination v-model:page="filters.page" :limit="filters.limit" />
     </q-page>
 </template>
 

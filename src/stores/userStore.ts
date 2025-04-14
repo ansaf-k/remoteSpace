@@ -19,7 +19,8 @@ export interface User {
 
 interface CustomQuery {
     search?: string;
-    limit?:number;
+    limit?: number;
+    page?: number;
     filter?: {
         active_status?: {
             _eq: string;
@@ -27,12 +28,12 @@ interface CustomQuery {
     };
 }
 
-interface UserFilters {
-    search?: string;
+export interface UserFilters {
+    search?: string | undefined;
     status?: User['active_status'] | null;
-    limit?: number;
+    limit: number;
+    page: number;
 }
-
 
 export interface Badge {
     id: string;
@@ -54,11 +55,19 @@ export const useUserStore = defineStore('user', () => {
     const error = ref('');
 
 
+    async function getTotalUserCount() {
+        const response = await directus.request(readUsers());
+        const count = response.length;
+        return count;
+    };
+
+
     async function fetchUsers(filters: UserFilters) {
         try {
 
             const params: CustomQuery = {
-                limit: filters.limit || 15,
+                limit: filters.limit,
+                page: filters.page || 1,
 
             };
 
@@ -135,5 +144,6 @@ export const useUserStore = defineStore('user', () => {
         fetchUsers,
         fetchActiveUsers,
         fetchUserBadges,
+        getTotalUserCount
     };
 });

@@ -14,7 +14,8 @@ import {
     readUser,
     readUsers,
     customEndpoint,
-    readItem
+    readItem,
+    aggregate
 } from '@directus/sdk';
 
 
@@ -44,5 +45,5 @@ const directus = createDirectus(import.meta.env.VITE_DIRECTUS_URL)
 export {
     createItemOperation as createItem, deleteItemOperation as deleteItem, directus,
     readItems, readMe, updateItemOperation as updateItem, readCollections, passwordRequest,
-    passwordReset, readUser, readUsers, customEndpoint,readItem
+    passwordReset, readUser, readUsers, customEndpoint, readItem, aggregate
 };
