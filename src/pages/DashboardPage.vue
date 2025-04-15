@@ -118,7 +118,7 @@ const buttonLabel = computed(() => {
                     <q-card-section class="q-pb-none">
                         <div class="row items-center justify-between">
                             <div class="text-h6">Active Teams</div>
-                            <q-btn flat color="primary" label="View All Teams" />
+                            <q-btn to="/dashboard/team" flat color="primary" label="View All Teams" />
                         </div>
                     </q-card-section>
 
@@ -228,7 +228,7 @@ const buttonLabel = computed(() => {
                                 </q-item-section>
 
                                 <q-item-section side>
-                                    <q-btn flat round size="sm" icon="chat_bubble_outline" color="primary" />
+                                    <q-btn flat round :to="`/user/${user?.id}`" size="sm" icon="keyboard_arrow_right" color="primary" />
                                 </q-item-section>
                             </q-item>
                         </q-list>

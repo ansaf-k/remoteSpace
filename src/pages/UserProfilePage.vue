@@ -47,8 +47,7 @@ onMounted(async () => {
                     <div class="profile-header q-pb-md">
                         <div class="avatar-section">
                             <q-avatar size="120px" class="profile-avatar">
-                                <img :src="avatarSrc"
-                                    :alt="userStore.user?.first_name ?? 'Badge img'">
+                                <img :src="avatarSrc" :alt="userStore.user?.first_name ?? 'Badge img'">
                             </q-avatar>
                             <q-badge :color="getStatusColor(userStore.user?.active_status as string)" rounded
                                 class="status-badge">
@@ -113,10 +112,10 @@ onMounted(async () => {
                     </div>
 
                     <!-- Divider -->
-                    <q-separator class="q-my-md" />
+                    <q-separator  v-if="teamStore.teamMembers?.length" class="q-my-md" />
 
                     <!-- current team -->
-                    <div v-if="teamStore.teamMembers" class="team-section q-mt-md">
+                    <div v-if="teamStore.teamMembers?.length" class="team-section q-mt-md">
                         <h5 class="section-title">Current Team</h5>
                         <div class="row q-col-gutter-md">
                             <div v-for="member in teamStore.teamMembers" :key="member.id" class="col-md-4 col-sm-12">
@@ -131,7 +130,7 @@ onMounted(async () => {
                                         <q-card-section class="col-8">
                                             <div class="text-h6">{{ member.directus_users_id.first_name }}</div>
                                             <div class="text-subtitle2 text-grey">
-                                                {{ member.directus_users_id.role }}
+                                                {{ member.directus_users_id.role?.name }}
                                             </div>
                                         </q-card-section>
                                     </q-card-section>

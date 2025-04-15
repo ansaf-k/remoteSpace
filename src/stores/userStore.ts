@@ -80,7 +80,6 @@ export const useUserStore = defineStore('user', () => {
                     active_status: { _eq: filters.status }
                 };
             }
-            console.log(params);
 
             const data = await directus.request(readUsers(params));
             users.value = data as User[];

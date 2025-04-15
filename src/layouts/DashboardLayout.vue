@@ -96,9 +96,6 @@ const avatarUrl = computed(() => authStore.user?.avatar || 'src/assets/profile.j
                         <q-item clickable v-close-popup @click="goToCheckIn">
                             <q-item-section>Check In/Out</q-item-section>
                         </q-item>
-                        <q-item clickable v-close-popup @click="() => { }">
-                            <q-item-section>Preferences</q-item-section>
-                        </q-item>
                         <q-separator />
                         <q-item clickable v-close-popup @click="handleLogout">
                             <q-item-section>Logout</q-item-section>

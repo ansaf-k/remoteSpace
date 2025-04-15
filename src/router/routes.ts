@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'team',
-        component: () => import('pages/TeamPage.vue')
+        component: () => import('pages/TeamsPage.vue')
       },
       {
         path: 'peoples',
@@ -39,6 +39,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/UserProfilePage.vue'),
         meta: { hideSomeElements: true }
       },
+
     ]
   },
   {

@@ -21,6 +21,15 @@ type DirectusUserFields = {
     role?: { name: string };
 };
 
+interface TeamQuery {
+    limit?: number;
+    filter?: {
+        id?: {
+            _eq: string;
+        }
+    }
+}
+
 
 
 interface DirectusQuery {
@@ -39,10 +48,22 @@ export const useTeamStore = defineStore('team', () => {
     const team = ref<Teams[]>();
 
 
-    async function fetchTeam() {
-        const data = await directus.request(readItems('teams', {
-            limit: 10
-        }));
+    async function fetchTeam(TeamId?: string) {
+
+
+        const params: TeamQuery = {
+            limit: 15,
+        }
+
+        if (TeamId) {
+            params.filter = {
+                id: { _eq: TeamId }
+            }
+        }
+
+        const data = await directus.request(readItems('teams', params));
+
+        console.log("team", team);
         team.value = data as Teams[];
     }
 
@@ -60,7 +81,7 @@ export const useTeamStore = defineStore('team', () => {
                 ],
                 limit: 10
             }));
-            console.log(data);
+            console.log("teas", data);
             teamMembers.value = data as DirectusQuery[];
         } catch (err) {
             console.log(err)
